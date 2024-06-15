@@ -38,6 +38,37 @@ class Loader {
         const buffer = new Uint8Array(arrayBuffer);
         const data = SplatData.Deserialize(buffer);
         const splat = new Splat(data);
+        console.log("logging splat datas");
+        console.log(splat);
+        scene.addObject(splat);
+        return splat;
+    }
+
+    static async LoadFromFileAsyncLangsplat(file: File, scene: Scene, onProgress?: (progress: number) => void): Promise<Splat> {
+        const reader = new FileReader();
+        let splat = new Splat();
+        reader.onload = (e) => {
+            splat = this.LoadFromArrayBufferLangsplat(e.target!.result as ArrayBuffer, scene);
+        };
+        reader.onprogress = (e) => {
+            onProgress?.(e.loaded / e.total);
+        };
+        reader.readAsArrayBuffer(file);
+        await new Promise<void>((resolve) => {
+            reader.onloadend = () => {
+                resolve();
+            };
+        });
+        return splat;
+    }
+
+    static LoadFromArrayBufferLangsplat(arrayBuffer: ArrayBufferLike, scene: Scene): Splat {
+        const buffer = new Uint8Array(arrayBuffer);
+        const data = SplatData.DeserializeLangsplat(buffer);
+        console.log("processing langsplat")
+        data.procLangsplat("house")
+        const splat = new Splat(data);
+        console.log(splat)
         scene.addObject(splat);
         return splat;
     }
