@@ -38,8 +38,6 @@ class Loader {
         const buffer = new Uint8Array(arrayBuffer);
         const data = SplatData.Deserialize(buffer);
         const splat = new Splat(data);
-        console.log("logging splat datas");
-        console.log(splat);
         scene.addObject(splat);
         return splat;
     }
@@ -65,11 +63,10 @@ class Loader {
     static LoadFromArrayBufferLangsplat(arrayBuffer: ArrayBufferLike, scene: Scene): Splat {
         const buffer = new Uint8Array(arrayBuffer);
         const data = SplatData.DeserializeLangsplat(buffer);
-        console.log("processing langsplat")
-        data.procLangsplat("house")
         const splat = new Splat(data);
         console.log(splat)
         scene.addObject(splat);
+
         return splat;
     }
 }

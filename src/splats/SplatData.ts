@@ -67,7 +67,7 @@ class SplatData {
         this._road_similarities = road_similarities || new Float32Array(0);
         this._lamp_similarities = lamp_similarities || new Float32Array(0);
 
-        this._rgb = colors || new Uint8Array(0)
+        this._rgb = new Uint8Array(this._colors) || new Uint8Array(0)
 
         this.translate = (translation: Vector3) => {
             for (let i = 0; i < this.vertexCount; i++) {
@@ -195,18 +195,9 @@ class SplatData {
         }
 
         this.procLangsplat = (type: string) => {
-            //console.log(this._similarities.reduce((min, current) => current < min ? current : min, this._similarities[0]));
-            //console.log(this._similarities.reduce((max, current) => current > max ? current : max, this._similarities[0]))
-            
-        
-            //this.printAverage(this._similarities)
-
-            //console.log("lengths")
-            
-            //console.log(this._similarities.length)
-            //console.log(this._colors.length)
 
             let similarities = this._car_similarities
+            let apply = true
 
             switch (type) {
                 case "car":
@@ -228,23 +219,32 @@ class SplatData {
                     similarities = this._lamp_similarities
                     break;
                 default:
-                    similarities = this._car_similarities
+                    apply = false
                     break;
             }
 
+            const minimum = similarities.reduce((min, current) => current < min ? current : min, similarities[0])
+            const maximum = similarities.reduce((max, current) => current > max ? current : max, similarities[0])
+
+            console.log("running data swap")
+
             for (let j = 0; j < similarities.length ; j++) {
-                if (similarities[j] > 0.25) {
+                if (apply && similarities[j] > (minimum + (maximum - minimum)*0.65)) {
                     const splatRGB = this.mapHeatValue(similarities[j], 0, 0, 0, 0);
                     this._colors[4 * j + 0] = splatRGB[0];
                     this._colors[4 * j + 1] = splatRGB[1];
                     this._colors[4 * j + 2] = splatRGB[2];
-                 } else {
+                    } else {
                     this._colors[4 *j + 0] = this._rgb[4 *j + 0];
-                    this._colors[4 *j + 0] = this._rgb[4 *j + 0];
-                    this._colors[4 *j + 0] = this._rgb[4 *j + 0];
-                    this._colors[4 *j + 0] = this._rgb[4 *j + 0];
+                    this._colors[4 *j + 1] = this._rgb[4 *j + 1];
+                    this._colors[4 *j + 2] = this._rgb[4 *j + 2];
+                    this._colors[4 *j + 3] = this._rgb[4 *j + 3];
+                }
+                if (j % 100000 == 0) {
+                    console.log(j)
                 }
             }
+            console.log("data swap complete")
         };
     }
 
